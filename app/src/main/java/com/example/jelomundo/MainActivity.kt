@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// Este comentario es una prueba nuevamente
 open class Entrada(val id: Int, val precio: Double) {
     open fun mostrarDetalle(): String = "Entrada #$id - Precio: $$precio"
 }
