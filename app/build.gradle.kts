@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// este es un comentario de prueba
 android {
     namespace = "com.example.jelomundo"
     compileSdk {
