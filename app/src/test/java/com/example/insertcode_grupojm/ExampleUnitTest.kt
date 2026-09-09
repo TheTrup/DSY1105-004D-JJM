@@ -1,4 +1,4 @@
-package com.example.jelomundo
+package com.example.insertcode_grupojm
 
 import org.junit.Test
 

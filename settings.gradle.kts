@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "JeloMundo"
+rootProject.name = "InsertCode_GrupoJM"
 include(":app")
  
