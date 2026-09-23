@@ -8,21 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.insertcode_grupojm.ui.HomeScreen
-import com.example.insertcode_grupojm.ui.theme.*
+import com.example.insertcode_grupojm.ui.screens.HomeScreenAdaptive
+import com.example.insertcode_grupojm.ui.theme.InsertCode_GrupoJMTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // 2. Usa aquí InsertCode_GrupoJMTheme:
             InsertCode_GrupoJMTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
+                    HomeScreenAdaptive()
                 }
             }
         }
