@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "InsertCode_GrupoJM"
 include(":app")
+ 
