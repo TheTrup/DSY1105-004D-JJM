@@ -12,7 +12,6 @@ import com.example.insertcode_grupojm.viewmodel.LoginViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
-    // Una sola instancia del LoginViewModel para toda la app (login y Home comparten sesión)
     private val loginViewModel: LoginViewModel by viewModels {
         LoginViewModelFactory(applicationContext)
     }
@@ -22,7 +21,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             InsertCode_GrupoJMTheme {
-                // El Scaffold vive dentro de cada pantalla; aquí solo se monta la navegación
                 AppNavigation(loginViewModel = loginViewModel)
             }
         }
