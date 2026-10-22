@@ -9,11 +9,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.insertcode_grupojm.ui.screen.HomeAdminScreen
 import com.example.insertcode_grupojm.ui.screen.HomeOperadorScreen
 import com.example.insertcode_grupojm.ui.screen.HomeSupervisorScreen
+import com.example.insertcode_grupojm.ui.screen.ListadoOfflineScreen
 import com.example.insertcode_grupojm.ui.screen.LoginRoute
-import com.example.insertcode_grupojm.ui.screen.PerfilScreen // <-- Import agregado
+import com.example.insertcode_grupojm.ui.screen.PerfilScreen
+import com.example.insertcode_grupojm.ui.screen.RegistroIntegralScreen
 import com.example.insertcode_grupojm.ui.screen.RegistroScreen
+import com.example.insertcode_grupojm.ui.screen.ResumenIntegralScreen
 import com.example.insertcode_grupojm.ui.screen.ResumenScreen
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
+import com.example.insertcode_grupojm.viewmodel.UsuarioIntegralViewModel
 import com.example.insertcode_grupojm.viewmodel.UsuarioViewModel
 
 @Composable
@@ -23,6 +27,8 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
     val usuarioViewModel: UsuarioViewModel = viewModel()
+    // ViewModel compartido para Guía 14
+    val usuarioIntegralViewModel: UsuarioIntegralViewModel = viewModel()
 
     LaunchedEffect(Unit) {
         navigationViewModel.eventos.collect { evento ->
@@ -49,54 +55,48 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Perfil.route
+        startDestination = Screen.RegistroIntegral.route // Inicia directo en el Módulo Integral para evaluar
     ) {
         composable(Screen.Login.route) {
-            LoginRoute(
-                loginViewModel = loginViewModel,
-                navigationViewModel = navigationViewModel
-            )
+            LoginRoute(loginViewModel = loginViewModel, navigationViewModel = navigationViewModel)
         }
         composable(Screen.HomeAdmin.route) {
-            HomeAdminScreen(
-                loginViewModel = loginViewModel,
-                onCerrarSesion = { cerrarSesion(Screen.HomeAdmin.route) }
-            )
+            HomeAdminScreen(loginViewModel = loginViewModel, onCerrarSesion = { cerrarSesion(Screen.HomeAdmin.route) })
         }
         composable(Screen.HomeSupervisor.route) {
-            HomeSupervisorScreen(
-                loginViewModel = loginViewModel,
-                onCerrarSesion = { cerrarSesion(Screen.HomeSupervisor.route) }
-            )
+            HomeSupervisorScreen(loginViewModel = loginViewModel, onCerrarSesion = { cerrarSesion(Screen.HomeSupervisor.route) })
         }
         composable(Screen.HomeOperador.route) {
-            HomeOperadorScreen(
-                loginViewModel = loginViewModel,
-                onCerrarSesion = { cerrarSesion(Screen.HomeOperador.route) }
-            )
+            HomeOperadorScreen(loginViewModel = loginViewModel, onCerrarSesion = { cerrarSesion(Screen.HomeOperador.route) })
         }
         composable(Screen.Registro.route) {
-            RegistroScreen(
-                viewModel = usuarioViewModel,
-                onRegistroExitoso = { navigationViewModel.navigateTo(Screen.Resumen.route) },
-                onVolver = { navigationViewModel.navigateBack() }
-            )
+            RegistroScreen(viewModel = usuarioViewModel, onRegistroExitoso = { navigationViewModel.navigateTo(Screen.Resumen.route) }, onVolver = { navigationViewModel.navigateBack() })
         }
         composable(Screen.Resumen.route) {
-            ResumenScreen(
-                viewModel = usuarioViewModel,
-                onVolverAlLogin = {
-                    navigationViewModel.navigateTo(
-                        route = Screen.Login.route,
-                        popUpTo = Screen.Login.route
-                    )
-                }
+            ResumenScreen(viewModel = usuarioViewModel, onVolverAlLogin = { navigationViewModel.navigateTo(Screen.Login.route, Screen.Login.route) })
+        }
+        composable(Screen.Perfil.route) {
+            PerfilScreen(onVolver = { navigationViewModel.navigateBack() })
+        }
+
+        // Módulo Integral Room (Guía 14)
+        composable(Screen.RegistroIntegral.route) {
+            RegistroIntegralScreen(
+                viewModel = usuarioIntegralViewModel,
+                onNavigateResumen = { navController.navigate(Screen.ResumenIntegral.route) },
+                onNavigateListado = { navController.navigate(Screen.ListadoOffline.route) }
             )
         }
-        // Ruta para la Guía 13 (Cámara y Galería)
-        composable(Screen.Perfil.route) {
-            PerfilScreen(
-                onVolver = { navigationViewModel.navigateBack() }
+        composable(Screen.ResumenIntegral.route) {
+            ResumenIntegralScreen(
+                viewModel = usuarioIntegralViewModel,
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.ListadoOffline.route) {
+            ListadoOfflineScreen(
+                viewModel = usuarioIntegralViewModel,
+                onVolver = { navController.popBackStack() }
             )
         }
     }

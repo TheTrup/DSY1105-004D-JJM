@@ -1,7 +1,6 @@
 package com.example.insertcode_grupojm.ui.components
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,7 @@ import coil.compose.AsyncImage
 fun ImagenInteligente(
     imagenUri: Uri?,
     modifier: Modifier = Modifier,
-    tamano: Dp = 140.dp
+    tamano: Dp = 120.dp
 ) {
     Box(
         modifier = modifier
@@ -35,20 +34,18 @@ fun ImagenInteligente(
         contentAlignment = Alignment.Center
     ) {
         if (imagenUri != null) {
-            // Carga reactiva de la imagen mediante Coil
             AsyncImage(
                 model = imagenUri,
-                contentDescription = "Foto de perfil",
+                contentDescription = "Foto de usuario",
                 modifier = Modifier
                     .size(tamano)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
         } else {
-            // Ícono por defecto cuando aún no se ha elegido foto
             Icon(
                 imageVector = Icons.Default.Person,
-                contentDescription = "Sin foto de perfil",
+                contentDescription = "Sin imagen",
                 modifier = Modifier.size(tamano * 0.6f),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
