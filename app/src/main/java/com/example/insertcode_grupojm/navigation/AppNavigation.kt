@@ -16,6 +16,7 @@ import com.example.insertcode_grupojm.ui.screen.RegistroIntegralScreen
 import com.example.insertcode_grupojm.ui.screen.RegistroScreen
 import com.example.insertcode_grupojm.ui.screen.ResumenIntegralScreen
 import com.example.insertcode_grupojm.ui.screen.ResumenScreen
+import com.example.insertcode_grupojm.ui.screen.PostScreen
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
 import com.example.insertcode_grupojm.viewmodel.UsuarioIntegralViewModel
 import com.example.insertcode_grupojm.viewmodel.UsuarioViewModel
@@ -55,7 +56,7 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.RegistroIntegral.route // Inicia directo en el Módulo Integral para evaluar
+        startDestination = Screen.ApiPosts.route // Inicia directo para evaluar
     ) {
         composable(Screen.Login.route) {
             LoginRoute(loginViewModel = loginViewModel, navigationViewModel = navigationViewModel)
@@ -77,6 +78,9 @@ fun AppNavigation(
         }
         composable(Screen.Perfil.route) {
             PerfilScreen(onVolver = { navigationViewModel.navigateBack() })
+        }
+        composable(Screen.ApiPosts.route) {
+            PostScreen()
         }
 
         // Módulo Integral Room (Guía 14)
