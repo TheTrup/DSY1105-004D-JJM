@@ -13,13 +13,16 @@ sealed class Screen(val route: String) {
     data object Registro : Screen("registro")
     data object Resumen : Screen("resumen")
 
-    // Guia 13 Camara y Galeria
+    // Guia 12 Camara y Galeria
     data object Perfil : Screen("perfil")
 
-    // Guía 14: Módulo Integral Room
+    // Guía 13: Módulo Integral Room
     data object RegistroIntegral : Screen("registro_integral")
     data object ResumenIntegral : Screen("resumen_integral")
     data object ListadoOffline : Screen("listado_offline")
+
+    // Guia 14: API REST
+    data object ApiPosts : Screen("api_posts")
 }
 
 // Devuelve la ruta del Home que corresponde a cada rol (login diferenciado por rol).
