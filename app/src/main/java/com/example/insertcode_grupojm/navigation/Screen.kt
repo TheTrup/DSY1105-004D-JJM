@@ -23,6 +23,9 @@ sealed class Screen(val route: String) {
 
     // Guia 14: API REST
     data object ApiPosts : Screen("api_posts")
+
+    // Implementacion de Registro
+    data object RegistroUsuario : Screen("registro_usuario")
 }
 
 // Devuelve la ruta del Home que corresponde a cada rol (login diferenciado por rol).

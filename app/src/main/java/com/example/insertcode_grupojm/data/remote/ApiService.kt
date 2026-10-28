@@ -1,6 +1,8 @@
 package com.example.insertcode_grupojm.data.remote
 
 import com.example.insertcode_grupojm.model.Post
+import com.example.insertcode_grupojm.model.RegisterRequest
+import com.example.insertcode_grupojm.model.RegisterResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -24,4 +26,7 @@ interface ApiService {
     // Crear un nuevo post mediante @Body (CodePath)
     @POST("posts")
     suspend fun createPost(@Body newPost: Post): Post
+
+    @POST("users") // O "register" según la API que utilices
+    suspend fun registerUser(@Body request: RegisterRequest): RegisterResponse
 }

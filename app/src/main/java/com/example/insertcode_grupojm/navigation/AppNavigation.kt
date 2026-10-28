@@ -17,6 +17,7 @@ import com.example.insertcode_grupojm.ui.screen.RegistroScreen
 import com.example.insertcode_grupojm.ui.screen.ResumenIntegralScreen
 import com.example.insertcode_grupojm.ui.screen.ResumenScreen
 import com.example.insertcode_grupojm.ui.screen.PostScreen
+import com.example.insertcode_grupojm.ui.screen.RegisterScreen
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
 import com.example.insertcode_grupojm.viewmodel.UsuarioIntegralViewModel
 import com.example.insertcode_grupojm.viewmodel.UsuarioViewModel
@@ -56,7 +57,7 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.ApiPosts.route // Inicia directo para evaluar
+        startDestination = Screen.RegistroUsuario.route // Inicia directo para evaluar
     ) {
         composable(Screen.Login.route) {
             LoginRoute(loginViewModel = loginViewModel, navigationViewModel = navigationViewModel)
@@ -101,6 +102,17 @@ fun AppNavigation(
             ListadoOfflineScreen(
                 viewModel = usuarioIntegralViewModel,
                 onVolver = { navController.popBackStack() }
+            )
+        }
+
+        // Implementacion Registro
+        composable(Screen.RegistroUsuario.route) {
+            RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.RegistroUsuario.route) { inclusive = true }
+                    }
+                }
             )
         }
     }
