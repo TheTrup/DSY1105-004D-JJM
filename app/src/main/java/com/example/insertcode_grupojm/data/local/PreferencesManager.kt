@@ -7,18 +7,18 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-val Context.dataStorePreferences by preferencesDataStore(name = "preferencias_usuario")
+private val Context.dataStore by preferencesDataStore(name = "preferencias_usuario")
 
 class PreferencesManager(private val context: Context) {
 
     private val MODO_ESPECIAL_KEY = booleanPreferencesKey("modo_especial")
 
-    val modoEspecialFlow: Flow<Boolean> = context.dataStorePreferences.data.map { preferences ->
+    val modoEspecialFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[MODO_ESPECIAL_KEY] ?: false
     }
 
     suspend fun guardarModoEspecial(activo: Boolean) {
-        context.dataStorePreferences.edit { preferences ->
+        context.dataStore.edit { preferences ->
             preferences[MODO_ESPECIAL_KEY] = activo
         }
     }

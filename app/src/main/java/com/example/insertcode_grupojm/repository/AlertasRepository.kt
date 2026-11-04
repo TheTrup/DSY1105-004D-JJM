@@ -23,33 +23,9 @@ class AlertasRepository {
 
     private fun obtenerAlertasIniciales(): List<Alerta> {
         return listOf(
-            Alerta(
-                id = "ALT-01",
-                titulo = "Retraso en Despacho",
-                mensaje = "El pedido PED-101 presenta retraso en la ruta asignada a la zona Centro.",
-                tipo = TipoAlerta.LOGISTICA_RETRASO,
-                severidad = SeveridadAlerta.ALTA,
-                timestamp = "Hace 15 min",
-                entidadReferenciaId = "PED-101"
-            ),
-            Alerta(
-                id = "ALT-02",
-                titulo = "Stock Crítico",
-                mensaje = "El producto 'Pack Snack Papas' cuenta con solo 3 unidades en inventario.",
-                tipo = TipoAlerta.STOCK_CRITICO,
-                severidad = SeveridadAlerta.MEDIA,
-                timestamp = "Hace 1 hora",
-                entidadReferenciaId = "PROD-02"
-            ),
-            Alerta(
-                id = "ALT-03",
-                titulo = "Pedido Prioritario Urgente",
-                mensaje = "Se requiere aprobación inmediata para la orden PED-102.",
-                tipo = TipoAlerta.PEDIDO_URGENTE,
-                severidad = SeveridadAlerta.ALTA,
-                timestamp = "Hace 2 horas",
-                entidadReferenciaId = "PED-102"
-            )
+            Alerta("ALT-01", "Retraso en Despacho", "El pedido PED-101 presenta retraso en la ruta asignada a la zona Centro.", TipoAlerta.LOGISTICA_RETRASO, SeveridadAlerta.ALTA, "Hace 15 min", false, "PED-101"),
+            Alerta("ALT-02", "Stock Crítico", "El producto 'Pack Snack Papas' cuenta con solo 3 unidades en inventario.", TipoAlerta.STOCK_CRITICO, SeveridadAlerta.MEDIA, "Hace 1 hora", false, "PROD-02"),
+            Alerta("ALT-03", "Pedido Prioritario Urgente", "Se requiere aprobación inmediata para la orden PED-102.", TipoAlerta.PEDIDO_URGENTE, SeveridadAlerta.ALTA, "Hace 2 horas", false, "PED-102")
         )
     }
 }

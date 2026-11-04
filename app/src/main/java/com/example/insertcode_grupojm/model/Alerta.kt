@@ -1,17 +1,8 @@
+// model/Alerta.kt
 package com.example.insertcode_grupojm.model
 
-enum class TipoAlerta {
-    LOGISTICA_RETRASO,
-    PEDIDO_URGENTE,
-    STOCK_CRITICO,
-    DESVIACION_RUTA
-}
-
-enum class SeveridadAlerta {
-    INFORMATIVA,
-    MEDIA,
-    ALTA
-}
+enum class TipoAlerta { LOGISTICA_RETRASO, PEDIDO_URGENTE, STOCK_CRITICO, DESVIACION_RUTA }
+enum class SeveridadAlerta { INFORMATIVA, MEDIA, ALTA }
 
 data class Alerta(
     val id: String,

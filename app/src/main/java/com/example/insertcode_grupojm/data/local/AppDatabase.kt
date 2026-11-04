@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.insertcode_grupojm.data.local.dao.UsuarioDao
-import com.example.insertcode_grupojm.data.local.entity.UsuarioEntity
+import com.example.insertcode_grupojm.model.UsuarioEntity
 
 @Database(entities = [UsuarioEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)

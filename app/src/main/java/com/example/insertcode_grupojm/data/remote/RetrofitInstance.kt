@@ -1,39 +1,32 @@
 package com.example.insertcode_grupojm.data.remote
 
-import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object RetrofitClient {
+object RetrofitInstance {
 
+    // URL Base para la API de prueba sintética
     private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
 
-    // Interceptor de logs para depurar peticiones (Troubleshooting CodePath)
+    // Logging Interceptor para visualizar las peticiones en Logcat
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    // Cliente OkHttp personalizado
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(15, TimeUnit.SECONDS)
         .build()
 
-    // Instancia de Gson
-    private val gson = GsonBuilder()
-        .setLenient()
-        .create()
-
-    // Construcción de la instancia Retrofit
-    val apiService: ApiService by lazy {
+    val api: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
     }

@@ -1,32 +1,25 @@
 package com.example.insertcode_grupojm.data.remote
 
-import com.example.insertcode_grupojm.model.Post
-import com.example.insertcode_grupojm.model.RegisterRequest
-import com.example.insertcode_grupojm.model.RegisterResponse
+import com.example.insertcode_grupojm.data.remote.dto.PedidoDto
+import com.example.insertcode_grupojm.data.remote.dto.PostDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface ApiService {
 
-    // Obtener todos los posts
+    // Endpoints de prueba Guía 14
     @GET("posts")
-    suspend fun getPosts(): List<Post>
+    suspend fun getPosts(): List<PostDto>
 
-    // Obtener un post específico por ID mediante @Path (CodePath)
     @GET("posts/{id}")
-    suspend fun getPostById(@Path("id") id: Int): Post
+    suspend fun getPostById(@Path("id") id: Int): PostDto
 
-    // Filtrar posts por usuario mediante @Query (CodePath)
-    @GET("posts")
-    suspend fun getPostsByUser(@Query("userId") userId: Int): List<Post>
+    // Endpoints simulados para el Dashboard InsertCode
+    @GET("pedidos")
+    suspend fun getPedidos(): List<PedidoDto>
 
-    // Crear un nuevo post mediante @Body (CodePath)
-    @POST("posts")
-    suspend fun createPost(@Body newPost: Post): Post
-
-    @POST("users") // O "register" según la API que utilices
-    suspend fun registerUser(@Body request: RegisterRequest): RegisterResponse
+    @POST("pedidos")
+    suspend fun crearPedido(@Body pedido: PedidoDto): PedidoDto
 }

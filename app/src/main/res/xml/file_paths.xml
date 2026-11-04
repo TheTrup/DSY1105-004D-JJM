@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Ruta para archivos temporales en memoria caché (Guía 13) -->
-    <cache-path name="camera_cache" path="." />
-
-    <!-- Ruta requerida por la Guía 14 para getExternalFilesDir -->
-    <external-files-path name="camera_external" path="." />
+    <external-files-path
+        name="my_images"
+        path="Pictures" />
+    <cache-path
+        name="cache_images"
+        path="." />
 </paths>

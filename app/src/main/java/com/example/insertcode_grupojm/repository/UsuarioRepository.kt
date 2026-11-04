@@ -2,7 +2,7 @@ package com.example.insertcode_grupojm.repository
 
 import com.example.insertcode_grupojm.data.local.PreferencesManager
 import com.example.insertcode_grupojm.data.local.dao.UsuarioDao
-import com.example.insertcode_grupojm.data.local.entity.UsuarioEntity
+import com.example.insertcode_grupojm.model.UsuarioEntity
 import kotlinx.coroutines.flow.Flow
 
 class UsuarioRepository(
@@ -12,11 +12,15 @@ class UsuarioRepository(
     val usuarios: Flow<List<UsuarioEntity>> = usuarioDao.getUsuariosFlow()
     val modoEspecial: Flow<Boolean> = preferencesManager.modoEspecialFlow
 
-    suspend fun guardarUsuario(usuario: UsuarioEntity): Long {
-        return usuarioDao.insertar(usuario)
+    suspend fun registrarUsuario(usuario: UsuarioEntity) {
+        usuarioDao.insertar(usuario)
     }
 
-    suspend fun setModoEspecial(activo: Boolean) {
+    suspend fun eliminarUsuario(usuario: UsuarioEntity) {
+        usuarioDao.eliminar(usuario)
+    }
+
+    suspend fun alternarModoEspecial(activo: Boolean) {
         preferencesManager.guardarModoEspecial(activo)
     }
 }

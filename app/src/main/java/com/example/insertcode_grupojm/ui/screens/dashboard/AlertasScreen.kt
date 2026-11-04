@@ -7,12 +7,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.insertcode_grupojm.viewmodel.AlertasViewModel
 
 @Composable
-fun AlertasScreen() {
+fun AlertasScreen(
+    viewModel: AlertasViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -25,13 +33,7 @@ fun AlertasScreen() {
         )
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(
-                listOf(
-                    "Retraso en Entrega Pedido #102 - Ruta Santiago Centro",
-                    "Stock Crítico: Producto 'Jugo Naranja 1L'",
-                    "Pedido Urgente #105 sin asignar repartidor"
-                )
-            ) { alerta ->
+            items(uiState.alertas) { alerta ->
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer
@@ -48,11 +50,18 @@ fun AlertasScreen() {
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(end = 12.dp)
                         )
-                        Text(
-                            text = alerta,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
+                        Column {
+                            Text(
+                                text = alerta.titulo,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                            Text(
+                                text = alerta.mensaje,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
                     }
                 }
             }

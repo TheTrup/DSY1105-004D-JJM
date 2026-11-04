@@ -1,19 +1,7 @@
 package com.example.insertcode_grupojm.model
 
-enum class EstadoPedido {
-    PENDIENTE,
-    EN_PROCESO,
-    DESPACHADO,
-    ENTREGADO,
-    CANCELADO
-}
-
-enum class PrioridadPedido {
-    BAJA,
-    MEDIA,
-    ALTA,
-    URGENTE
-}
+enum class EstadoPedido { PENDIENTE, EN_PROCESO, DESPACHADO, ENTREGADO, CANCELADO }
+enum class PrioridadPedido { BAJA, MEDIA, ALTA, URGENTE }
 
 data class Producto(
     val id: String,
@@ -28,9 +16,7 @@ data class DetallePedido(
     val nombreProducto: String,
     val cantidad: Int,
     val precioUnitario: Double
-) {
-    val subtotal: Double get() = cantidad * precioUnitario
-}
+)
 
 data class Pedido(
     val id: String,
