@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.insertcode_grupojm.utils.GoogleAuthHelper
+import com.example.insertcode_grupojm.ui.utils.GoogleAuthHelper
 import com.example.insertcode_grupojm.viewmodel.RegisterViewModel
 import kotlinx.coroutines.launch
 

@@ -1,43 +1,25 @@
 package com.example.insertcode_grupojm.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.insertcode_grupojm.R
 import com.example.insertcode_grupojm.model.LoginErrores
@@ -45,15 +27,12 @@ import com.example.insertcode_grupojm.model.LoginUiState
 import com.example.insertcode_grupojm.navigation.NavigationViewModel
 import com.example.insertcode_grupojm.navigation.Screen
 import com.example.insertcode_grupojm.navigation.rutaHomePorRol
-import com.example.insertcode_grupojm.ui.theme.InsertCode_GrupoJMTheme
 import com.example.insertcode_grupojm.ui.utils.TamanoVentana
 import com.example.insertcode_grupojm.ui.utils.rememberTamanoVentana
+import com.example.insertcode_grupojm.ui.utils.GoogleAuthHelper
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
+import kotlinx.coroutines.launch
 
-// ---------------------------------------------------------------------------
-// Conexión con los ViewModels (stateful). La pantalla visual de abajo es
-// "stateless": recibe estado y lambdas, por eso se puede previsualizar.
-// ---------------------------------------------------------------------------
 @Composable
 fun LoginRoute(
     loginViewModel: LoginViewModel,
@@ -68,7 +47,6 @@ fun LoginRoute(
         onPasswordChange = loginViewModel::onPasswordChange,
         onSimularSinConexionChange = loginViewModel::onSimularSinConexionChange,
         onLoginClick = {
-            // Si el login es correcto, se navega al Home del rol y se borra el login de la pila
             loginViewModel.onLoginClick { rol ->
                 navigationViewModel.navigateTo(
                     route = rutaHomePorRol(rol),
@@ -77,13 +55,17 @@ fun LoginRoute(
                 )
             }
         },
-        onRegistroClick = { navigationViewModel.navigateTo(Screen.Registro.route) }
+        onOAuthSuccess = {
+            navigationViewModel.navigateTo(
+                route = Screen.Inicio.route,
+                popUpTo = Screen.Login.route,
+                inclusive = true
+            )
+        },
+        onRegistroClick = { navigationViewModel.navigateTo(Screen.Register.route) }
     )
 }
 
-// ---------------------------------------------------------------------------
-// Pantalla de login con dos layouts según el tamaño de ventana
-// ---------------------------------------------------------------------------
 @Composable
 fun LoginScreen(
     estado: LoginUiState,
@@ -92,9 +74,15 @@ fun LoginScreen(
     onPasswordChange: (String) -> Unit,
     onSimularSinConexionChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit,
+    onOAuthSuccess: () -> Unit,
     onRegistroClick: () -> Unit
 ) {
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -103,7 +91,6 @@ fun LoginScreen(
             contentAlignment = Alignment.Center
         ) {
             if (tamano == TamanoVentana.Compact) {
-                // Compact (celular): todo en una sola Column vertical
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -113,12 +100,17 @@ fun LoginScreen(
                 ) {
                     EncabezadoLogin()
                     FormularioLogin(
-                        estado, onEmailChange, onPasswordChange,
-                        onSimularSinConexionChange, onLoginClick, onRegistroClick
+                        estado = estado,
+                        onEmailChange = onEmailChange,
+                        onPasswordChange = onPasswordChange,
+                        onSimularSinConexionChange = onSimularSinConexionChange,
+                        onLoginClick = onLoginClick,
+                        onOAuthSuccess = onOAuthSuccess,
+                        onRegistroClick = onRegistroClick,
+                        snackbarHostState = snackbarHostState
                     )
                 }
             } else {
-                // Medium / Expanded: Card centrada con un Row (encabezado | formulario)
                 Card(modifier = Modifier.widthIn(max = 880.dp)) {
                     Row(
                         modifier = Modifier.padding(32.dp),
@@ -137,8 +129,14 @@ fun LoginScreen(
                                 .verticalScroll(rememberScrollState())
                         ) {
                             FormularioLogin(
-                                estado, onEmailChange, onPasswordChange,
-                                onSimularSinConexionChange, onLoginClick, onRegistroClick
+                                estado = estado,
+                                onEmailChange = onEmailChange,
+                                onPasswordChange = onPasswordChange,
+                                onSimularSinConexionChange = onSimularSinConexionChange,
+                                onLoginClick = onLoginClick,
+                                onOAuthSuccess = onOAuthSuccess,
+                                onRegistroClick = onRegistroClick,
+                                snackbarHostState = snackbarHostState
                             )
                         }
                     }
@@ -148,7 +146,6 @@ fun LoginScreen(
     }
 }
 
-// Logo y títulos (se reutiliza en ambos layouts)
 @Composable
 private fun EncabezadoLogin() {
     Column(
@@ -156,12 +153,12 @@ private fun EncabezadoLogin() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_logo_guardian),
-            contentDescription = "Logo Modo Guardián",
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentDescription = "Logo InsertCode",
             modifier = Modifier.size(96.dp)
         )
         Text(
-            text = "Modo Guardián",
+            text = "InsertCode Móvil",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -174,7 +171,6 @@ private fun EncabezadoLogin() {
     }
 }
 
-// Campos, mensajes de error y botones (se reutiliza en ambos layouts)
 @Composable
 private fun FormularioLogin(
     estado: LoginUiState,
@@ -182,16 +178,19 @@ private fun FormularioLogin(
     onPasswordChange: (String) -> Unit,
     onSimularSinConexionChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit,
-    onRegistroClick: () -> Unit
+    onOAuthSuccess: () -> Unit,
+    onRegistroClick: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
-    // Solo es estado visual de la UI (mostrar/ocultar clave), por eso vive aquí y no en el ViewModel
     var mostrarClave by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val googleAuthHelper = remember { GoogleAuthHelper(context) }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Campo de correo con error y mensaje de apoyo
         OutlinedTextField(
             value = estado.email,
             onValueChange = onEmailChange,
@@ -204,7 +203,6 @@ private fun FormularioLogin(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Campo de contraseña oculta, con botón para mostrarla u ocultarla
         OutlinedTextField(
             value = estado.password,
             onValueChange = onPasswordChange,
@@ -213,11 +211,7 @@ private fun FormularioLogin(
             enabled = !estado.isLoading,
             isError = estado.errores.password != null,
             supportingText = { estado.errores.password?.let { Text(it) } },
-            visualTransformation = if (mostrarClave) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
+            visualTransformation = if (mostrarClave) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
                 TextButton(onClick = { mostrarClave = !mostrarClave }) {
@@ -227,7 +221,6 @@ private fun FormularioLogin(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Error general: credenciales incorrectas o falla de conectividad
         estado.errores.general?.let { mensaje ->
             Text(
                 text = mensaje,
@@ -236,7 +229,6 @@ private fun FormularioLogin(
             )
         }
 
-        // Interruptor de prueba para demostrar el manejo de error de conectividad
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -255,7 +247,6 @@ private fun FormularioLogin(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Botón habilitado solo si isLoginEnabled; muestra progreso mientras carga
         Button(
             onClick = onLoginClick,
             enabled = estado.isLoginEnabled,
@@ -273,6 +264,73 @@ private fun FormularioLogin(
             }
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Divisor OAuth
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1f))
+            Text(
+                text = "O inicia sesión con",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+            HorizontalDivider(modifier = Modifier.weight(1f))
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Botón Google
+        OutlinedButton(
+            onClick = {
+                coroutineScope.launch {
+                    googleAuthHelper.signInWithGoogle(
+                        serverClientId = "301636417833-nn5kif3k8903e0upd8anp5d682j3k898.apps.googleusercontent.com",
+                        onSuccess = { _, _ -> onOAuthSuccess() },
+                        onError = { err ->
+                            coroutineScope.launch { snackbarHostState.showSnackbar(err) }
+                        }
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(10.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        ) {
+            Text(
+                text = "G  Continuar con Google",
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Botón Apple
+        Button(
+            onClick = { onOAuthSuccess() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            )
+        ) {
+            Text(
+                text = "  Continuar con Apple",
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         TextButton(
             onClick = onRegistroClick,
             enabled = !estado.isLoading,
@@ -280,53 +338,5 @@ private fun FormularioLogin(
         ) {
             Text("¿No tienes cuenta? Regístrate")
         }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Previews: uno por cada clase de tamaño de ventana
-// ---------------------------------------------------------------------------
-@Preview(name = "Compact (celular)", widthDp = 360, heightDp = 780, showBackground = true)
-@Composable
-private fun LoginCompactPreview() {
-    InsertCode_GrupoJMTheme(dynamicColor = false) {
-        LoginScreen(LoginUiState(), TamanoVentana.Compact, {}, {}, {}, {}, {})
-    }
-}
-
-@Preview(name = "Medium (tablet pequeña)", widthDp = 700, heightDp = 500, showBackground = true)
-@Composable
-private fun LoginMediumPreview() {
-    InsertCode_GrupoJMTheme(dynamicColor = false) {
-        LoginScreen(LoginUiState(), TamanoVentana.Medium, {}, {}, {}, {}, {})
-    }
-}
-
-@Preview(name = "Expanded (tablet grande)", widthDp = 1000, heightDp = 640, showBackground = true)
-@Composable
-private fun LoginExpandedPreview() {
-    InsertCode_GrupoJMTheme(dynamicColor = false) {
-        LoginScreen(LoginUiState(), TamanoVentana.Expanded, {}, {}, {}, {}, {})
-    }
-}
-
-@Preview(name = "Compact con error", widthDp = 360, heightDp = 780, showBackground = true)
-@Composable
-private fun LoginErrorPreview() {
-    InsertCode_GrupoJMTheme(dynamicColor = false) {
-        LoginScreen(
-            estado = LoginUiState(
-                email = "correo-invalido",
-                password = "123",
-                errores = LoginErrores(
-                    email = "Correo inválido",
-                    password = "Mínimo 6 caracteres",
-                    general = "Sin conexión. Revisa tu red e inténtalo de nuevo"
-                )
-            ),
-            tamano = TamanoVentana.Compact,
-            onEmailChange = {}, onPasswordChange = {}, onSimularSinConexionChange = {},
-            onLoginClick = {}, onRegistroClick = {}
-        )
     }
 }

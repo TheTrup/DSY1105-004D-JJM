@@ -4,13 +4,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.insertcode_grupojm.model.RolUsuario
+import com.example.insertcode_grupojm.model.Rol
 import com.example.insertcode_grupojm.viewmodel.PerfilViewModel
 
 @Composable
@@ -96,9 +97,8 @@ fun PerfilScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = uiState.usuario.nombre, style = MaterialTheme.typography.headlineMedium)
-            Text(text = "Rol: ${uiState.usuario.rol.name}", style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Email: ${uiState.usuario.email}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Email: ${uiState.usuario.email}", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "Rol: ${uiState.usuario.rol.etiqueta}", style = MaterialTheme.typography.bodyMedium)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -110,19 +110,19 @@ fun PerfilScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 FilterChip(
-                    selected = uiState.usuario.rol == RolUsuario.SUPERVISOR,
-                    onClick = { viewModel.cambiarRolSimulado(RolUsuario.SUPERVISOR) },
+                    selected = uiState.usuario.rol == Rol.SUPERVISOR,
+                    onClick = { viewModel.cambiarRolSimulado(Rol.SUPERVISOR) },
                     label = { Text("Supervisor") }
                 )
                 FilterChip(
-                    selected = uiState.usuario.rol == RolUsuario.VENDEDOR,
-                    onClick = { viewModel.cambiarRolSimulado(RolUsuario.VENDEDOR) },
-                    label = { Text("Vendedor") }
+                    selected = uiState.usuario.rol == Rol.ADMIN,
+                    onClick = { viewModel.cambiarRolSimulado(Rol.ADMIN) },
+                    label = { Text("Admin") }
                 )
                 FilterChip(
-                    selected = uiState.usuario.rol == RolUsuario.REPARTIDOR,
-                    onClick = { viewModel.cambiarRolSimulado(RolUsuario.REPARTIDOR) },
-                    label = { Text("Repartidor") }
+                    selected = uiState.usuario.rol == Rol.OPERADOR,
+                    onClick = { viewModel.cambiarRolSimulado(Rol.OPERADOR) },
+                    label = { Text("Operador") }
                 )
             }
         }

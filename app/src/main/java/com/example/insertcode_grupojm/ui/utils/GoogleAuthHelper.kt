@@ -1,6 +1,8 @@
-package com.example.insertcode_grupojm.utils
+package com.example.insertcode_grupojm.ui.utils
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
@@ -11,11 +13,26 @@ class GoogleAuthHelper(private val context: Context) {
 
     private val credentialManager = CredentialManager.create(context)
 
+    private fun findActivity(context: Context): Activity? {
+        var current = context
+        while (current is ContextWrapper) {
+            if (current is Activity) return current
+            current = current.baseContext
+        }
+        return null
+    }
+
     suspend fun signInWithGoogle(
-        serverClientId: String, // Web Client ID generado en Google Cloud Console
+        serverClientId: String,
         onSuccess: (idToken: String, email: String) -> Unit,
         onError: (String) -> Unit
     ) {
+        val activity = findActivity(context)
+        if (activity == null) {
+            onError("No se pudo obtener la referencia de la Activity")
+            return
+        }
+
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(serverClientId)
@@ -27,7 +44,7 @@ class GoogleAuthHelper(private val context: Context) {
             .build()
 
         try {
-            val result = credentialManager.getCredential(context = context, request = request)
+            val result = credentialManager.getCredential(context = activity, request = request)
             val credential = result.credential
             if (credential is androidx.credentials.CustomCredential &&
                 credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
