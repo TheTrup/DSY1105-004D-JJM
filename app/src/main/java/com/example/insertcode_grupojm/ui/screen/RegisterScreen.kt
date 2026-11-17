@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 fun RegisterScreen(
     onNavigateBack: () -> Unit = {},
     onRegisterSuccess: () -> Unit = {},
+    onOAuthSuccess: (String) -> Unit = {},
     viewModel: RegisterViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -200,8 +201,8 @@ fun RegisterScreen(
                     coroutineScope.launch {
                         googleAuthHelper.signInWithGoogle(
                             serverClientId = "301636417833-nn5kif3k8903e0upd8anp5d682j3k898.apps.googleusercontent.com",
-                            onSuccess = { _, _ ->
-                                onRegisterSuccess()
+                            onSuccess = { _, emailGoogle ->
+                                onOAuthSuccess(emailGoogle)
                             },
                             onError = { error ->
                                 coroutineScope.launch {
@@ -211,7 +212,7 @@ fun RegisterScreen(
                                         duration = SnackbarDuration.Long
                                     )
                                     if (resultado == SnackbarResult.ActionPerformed) {
-                                        onRegisterSuccess()
+                                        onOAuthSuccess("demo.google@insertcode.cl")
                                     }
                                 }
                             }

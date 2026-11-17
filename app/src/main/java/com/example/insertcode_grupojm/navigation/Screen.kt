@@ -14,12 +14,17 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Alertas : Screen("alertas", "Alertas", Icons.Default.Notifications)
     object Perfil : Screen("perfil", "Perfil", Icons.Default.Person)
 
+    // Alias para compatibilidad con código que invoque Screen.Registro
+    val Registro: Screen get() = Register
+
     // Rutas adicionales de autenticación
     object Login : Screen("login", "Iniciar Sesión")
     object Register : Screen("register", "Registro")
 
-    // Alias para compatibilidad con código que invoque Screen.Registro
-    val Registro: Screen get() = Register
+    // Rutas de módulos técnicos (API REST y Persistencia Local)
+    object Posts : Screen("posts", "API REST Posts")
+    object RegistroIntegral : Screen("registro_integral", "Módulo Integral")
+    object ListadoOffline : Screen("listado_offline", "Usuarios Offline")
 }
 
 val bottomNavItems = listOf(

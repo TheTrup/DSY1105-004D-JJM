@@ -18,11 +18,21 @@ import com.example.insertcode_grupojm.ui.screens.dashboard.AlertasScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.HomeScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.PerfilScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.VentasScreen
+import com.example.insertcode_grupojm.ui.screen.ListadoOfflineScreen
+import com.example.insertcode_grupojm.ui.screen.PostScreen
+import com.example.insertcode_grupojm.ui.screen.RegistroIntegralScreen
 import com.example.insertcode_grupojm.ui.utils.rememberTamanoVentana
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
 import com.example.insertcode_grupojm.viewmodel.PerfilViewModel
 import com.example.insertcode_grupojm.viewmodel.RegisterViewModel
+import com.example.insertcode_grupojm.viewmodel.UsuarioIntegralViewModel
+import androidx.compose.runtime.remember
+import com.example.insertcode_grupojm.repository.VentasRepository
+import com.example.insertcode_grupojm.viewmodel.AlertasViewModel
+import com.example.insertcode_grupojm.viewmodel.DashboardViewModel
+import com.example.insertcode_grupojm.viewmodel.VentasViewModel
 import kotlinx.coroutines.flow.collectLatest
+
 
 @Composable
 fun AppNavigation(
@@ -54,6 +64,15 @@ fun AppNavigation(
     // La barra inferior de navegación solo se muestra dentro del Dashboard
     val showBottomBar = currentRoute in bottomNavItems.map { it.route }
 
+    val ventasRepository = remember { VentasRepository() }
+    val dashboardViewModel: DashboardViewModel = viewModel {
+        DashboardViewModel(ventasRepository = ventasRepository)
+    }
+    val ventasViewModel: VentasViewModel = viewModel {
+        VentasViewModel(repository = ventasRepository)
+    }
+    val alertasViewModel: AlertasViewModel = viewModel()
+
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -84,7 +103,8 @@ fun AppNavigation(
                             )
                         }
                     },
-                    onOAuthSuccess = {
+                    onOAuthSuccess = { emailOAuth ->
+                        loginViewModel.iniciarSesionOAuth(emailOAuth)
                         navigationViewModel.navigateTo(
                             route = Screen.Inicio.route,
                             popUpTo = Screen.Login.route,
@@ -102,6 +122,16 @@ fun AppNavigation(
                 RegisterScreen(
                     onNavigateBack = { navigationViewModel.navigateBack() },
                     onRegisterSuccess = {
+                        val correoRegistrado = registerViewModel.uiState.value.email
+                        loginViewModel.iniciarSesionOAuth(correoRegistrado)
+                        navigationViewModel.navigateTo(
+                            route = Screen.Inicio.route,
+                            popUpTo = Screen.Login.route,
+                            inclusive = true
+                        )
+                    },
+                    onOAuthSuccess = { emailOAuth ->
+                        loginViewModel.iniciarSesionOAuth(emailOAuth)
                         navigationViewModel.navigateTo(
                             route = Screen.Inicio.route,
                             popUpTo = Screen.Login.route,
@@ -114,20 +144,62 @@ fun AppNavigation(
 
             // --- Flujo del Dashboard Principal ---
             composable(Screen.Inicio.route) {
-                HomeScreen()
+                HomeScreen(viewModel = dashboardViewModel)
             }
 
             composable(Screen.Ventas.route) {
-                VentasScreen()
+                VentasScreen(viewModel = ventasViewModel)
             }
 
             composable(Screen.Alertas.route) {
-                AlertasScreen()
+                AlertasScreen(viewModel = alertasViewModel)
             }
 
             composable(Screen.Perfil.route) {
                 val perfilViewModel: PerfilViewModel = viewModel()
-                PerfilScreen(viewModel = perfilViewModel)
+                PerfilScreen(
+                    loginViewModel = loginViewModel,
+                    perfilViewModel = perfilViewModel,
+                    onNavigateToPosts = {
+                        navigationViewModel.navigateTo(Screen.Posts.route)
+                    },
+                    onNavigateToIntegral = {
+                        navigationViewModel.navigateTo(Screen.RegistroIntegral.route)
+                    },
+                    onCerrarSesion = {
+                        navigationViewModel.navigateTo(
+                            route = Screen.Login.route,
+                            popUpTo = Screen.Inicio.route,
+                            inclusive = true
+                        )
+                    }
+                )
+            }
+
+            // --- Rutas de Módulos Técnicos (API REST y Room) ---
+            composable(Screen.Posts.route) {
+                PostScreen()
+            }
+
+            composable(Screen.RegistroIntegral.route) {
+                val integralViewModel: UsuarioIntegralViewModel = viewModel()
+                RegistroIntegralScreen(
+                    viewModel = integralViewModel,
+                    onNavigateResumen = {
+                        navigationViewModel.navigateTo(Screen.ListadoOffline.route)
+                    },
+                    onNavigateListado = {
+                        navigationViewModel.navigateTo(Screen.ListadoOffline.route)
+                    }
+                )
+            }
+
+            composable(Screen.ListadoOffline.route) {
+                val integralViewModel: UsuarioIntegralViewModel = viewModel()
+                ListadoOfflineScreen(
+                    viewModel = integralViewModel,
+                    onVolver = { navigationViewModel.navigateBack() }
+                )
             }
         }
     }

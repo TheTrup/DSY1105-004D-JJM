@@ -1,86 +1,83 @@
 package com.example.insertcode_grupojm.repository
 
 import com.example.insertcode_grupojm.model.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class VentasRepository {
 
-    private val _pedidos = MutableStateFlow<List<Pedido>>(obtenerPedidosIniciales())
-    val pedidos: Flow<List<Pedido>> = _pedidos.asStateFlow()
-
-    private val _ventas = MutableStateFlow<List<Venta>>(obtenerVentasIniciales())
-    val ventas: Flow<List<Venta>> = _ventas.asStateFlow()
-
-    fun agregarPedido(pedido: Pedido) {
-        _pedidos.update { listaActual -> listaActual + pedido }
-    }
-
-    fun actualizarEstadoPedido(pedidoId: String, nuevoEstado: EstadoPedido) {
-        _pedidos.update { lista ->
-            lista.map { pedido ->
-                if (pedido.id == pedidoId) pedido.copy(estado = nuevoEstado) else pedido
-            }
-        }
-    }
-
-    private fun obtenerPedidosIniciales(): List<Pedido> {
-        return listOf(
+    private val _pedidos = MutableStateFlow(
+        listOf(
             Pedido(
-                id = "PED-101",
+                id = "PRJ-104",
                 clienteId = "CLI-01",
-                nombreCliente = "Distribuidora El Sol",
+                nombreCliente = "Logística Austral SpA",
                 vendedorId = "VEN-01",
-                fechaCreacion = "2026-11-04 09:30",
-                prioridad = PrioridadPedido.URGENTE,
-                estado = EstadoPedido.EN_PROCESO,
-                items = listOf(
-                    DetallePedido("PROD-01", "Caja Bebida 1.5L", 10, 12000.0),
-                    DetallePedido("PROD-02", "Pack Snack Papas", 5, 8500.0)
-                ),
-                total = 162500.0
-            ),
-            Pedido(
-                id = "PED-102",
-                clienteId = "CLI-02",
-                nombreCliente = "Comercial San José",
-                vendedorId = "VEN-01",
-                fechaCreacion = "2026-11-04 10:15",
+                fechaCreacion = "2026-11-17 09:30",
                 prioridad = PrioridadPedido.ALTA,
                 estado = EstadoPedido.PENDIENTE,
                 items = listOf(
-                    DetallePedido("PROD-03", "Caja Agua Mineral 500ml", 20, 6000.0)
+                    DetallePedido("SRV-01", "Desarrollo a la Medida (ERP)", 1, 2_400_000.0)
                 ),
-                total = 120000.0
+                total = 2_400_000.0
             ),
             Pedido(
-                id = "PED-103",
+                id = "PRJ-103",
+                clienteId = "CLI-02",
+                nombreCliente = "Clínica Santa María Norte",
+                vendedorId = "VEN-01",
+                fechaCreacion = "2026-11-17 08:45",
+                prioridad = PrioridadPedido.ALTA,
+                estado = EstadoPedido.EN_PROCESO,
+                items = listOf(
+                    DetallePedido("SRV-02", "Dashboards Power BI Ejecutivo", 2, 650_000.0)
+                ),
+                total = 1_300_000.0
+            ),
+            Pedido(
+                id = "PRJ-102",
                 clienteId = "CLI-03",
-                nombreCliente = "Minimarket Los Andes",
-                vendedorId = "VEN-02",
-                fechaCreacion = "2026-11-03 16:45",
+                nombreCliente = "Financiera Andina S.A.",
+                vendedorId = "VEN-01",
+                fechaCreacion = "2026-11-16 17:15",
                 prioridad = PrioridadPedido.MEDIA,
+                estado = EstadoPedido.DESPACHADO,
+                items = listOf(
+                    DetallePedido("SRV-04", "Outsourcing TI (Célula Dedicada)", 1, 1_850_000.0)
+                ),
+                total = 1_850_000.0
+            ),
+            Pedido(
+                id = "PRJ-101",
+                clienteId = "CLI-04",
+                nombreCliente = "Retail Pacífico",
+                vendedorId = "VEN-01",
+                fechaCreacion = "2026-11-16 11:00",
+                prioridad = PrioridadPedido.BAJA,
                 estado = EstadoPedido.ENTREGADO,
                 items = listOf(
-                    DetallePedido("PROD-01", "Caja Bebida 1.5L", 15, 12000.0)
+                    DetallePedido("SRV-03", "App Móvil Corporativa Android", 1, 1_900_000.0)
                 ),
-                total = 180000.0
+                total = 1_900_000.0
             )
         )
+    )
+    val pedidos: StateFlow<List<Pedido>> = _pedidos.asStateFlow()
+
+    private val _ventas = MutableStateFlow<List<Venta>>(emptyList())
+    val ventas: StateFlow<List<Venta>> = _ventas.asStateFlow()
+
+    fun agregarPedido(pedido: Pedido) {
+        _pedidos.update { listaActual -> listOf(pedido) + listaActual }
     }
 
-    private fun obtenerVentasIniciales(): List<Venta> {
-        return listOf(
-            Venta(
-                id = "VEN-501",
-                pedidoId = "PED-103",
-                clienteId = "CLI-03",
-                vendedorId = "VEN-02",
-                fechaVenta = "2026-11-03",
-                montoTotal = 180000.0
-            )
-        )
+    fun actualizarEstadoPedido(pedidoId: String, nuevoEstado: EstadoPedido) {
+        _pedidos.update { listaActual ->
+            listaActual.map { pedido ->
+                if (pedido.id == pedidoId) pedido.copy(estado = nuevoEstado) else pedido
+            }
+        }
     }
 }

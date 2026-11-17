@@ -6,6 +6,7 @@ import com.example.insertcode_grupojm.model.LoginErrores
 import com.example.insertcode_grupojm.model.LoginUiState
 import com.example.insertcode_grupojm.model.ResultadoLogin
 import com.example.insertcode_grupojm.model.Rol
+import com.example.insertcode_grupojm.model.Usuario
 import com.example.insertcode_grupojm.repository.AuthRepository
 import com.example.insertcode_grupojm.repository.PreferenciasRepository
 import kotlinx.coroutines.CancellationException
@@ -121,5 +122,20 @@ class LoginViewModel(
     private companion object {
         const val LARGO_MINIMO_CLAVE = 6
         val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    }
+
+    // Registra la sesión cuando el usuario ingresa mediante Google o Apple
+    fun iniciarSesionOAuth(email: String, rolPorDefecto: Rol = Rol.SUPERVISOR) {
+        val correoLimpio = email.trim().ifBlank { "usuario.oauth@guardian.test" }
+        preferencias.guardarUltimoEmail(correoLimpio)
+        _estado.update {
+            it.copy(
+                email = correoLimpio,
+                password = "",
+                isLoading = false,
+                errores = LoginErrores(),
+                usuario = Usuario(email = correoLimpio, rol = rolPorDefecto)
+            )
+        }
     }
 }

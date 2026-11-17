@@ -55,7 +55,8 @@ fun LoginRoute(
                 )
             }
         },
-        onOAuthSuccess = {
+        onOAuthSuccess = { emailOAuth ->
+            loginViewModel.iniciarSesionOAuth(emailOAuth)
             navigationViewModel.navigateTo(
                 route = Screen.Inicio.route,
                 popUpTo = Screen.Login.route,
@@ -74,7 +75,7 @@ fun LoginScreen(
     onPasswordChange: (String) -> Unit,
     onSimularSinConexionChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit,
-    onOAuthSuccess: () -> Unit,
+    onOAuthSuccess: (String) -> Unit,
     onRegistroClick: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -178,7 +179,7 @@ private fun FormularioLogin(
     onPasswordChange: (String) -> Unit,
     onSimularSinConexionChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit,
-    onOAuthSuccess: () -> Unit,
+    onOAuthSuccess: (String) -> Unit,
     onRegistroClick: () -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
@@ -289,7 +290,7 @@ private fun FormularioLogin(
                 coroutineScope.launch {
                     googleAuthHelper.signInWithGoogle(
                         serverClientId = "301636417833-nn5kif3k8903e0upd8anp5d682j3k898.apps.googleusercontent.com",
-                        onSuccess = { _, _ -> onOAuthSuccess() },
+                        onSuccess = { _, emailGoogle -> onOAuthSuccess(emailGoogle) },
                         onError = { err ->
                             coroutineScope.launch {
                                 val resultado = snackbarHostState.showSnackbar(
@@ -298,7 +299,7 @@ private fun FormularioLogin(
                                     duration = SnackbarDuration.Long
                                 )
                                 if (resultado == SnackbarResult.ActionPerformed) {
-                                    onOAuthSuccess()
+                                    onOAuthSuccess("demo.google@insertcode.cl")
                                 }
                             }
                         }
@@ -322,7 +323,7 @@ private fun FormularioLogin(
 
         // Botón Apple
         Button(
-            onClick = { onOAuthSuccess() },
+            onClick = { onOAuthSuccess("usuario.apple@insertcode.cl") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
