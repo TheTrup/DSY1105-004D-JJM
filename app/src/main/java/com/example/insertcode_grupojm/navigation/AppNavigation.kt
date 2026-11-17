@@ -73,6 +73,9 @@ fun AppNavigation(
     }
     val alertasViewModel: AlertasViewModel = viewModel()
 
+    val perfilViewModel: PerfilViewModel = viewModel()
+    val rolActivo = perfilViewModel.uiState.collectAsState().value.usuario.rol
+
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -148,7 +151,10 @@ fun AppNavigation(
             }
 
             composable(Screen.Ventas.route) {
-                VentasScreen(viewModel = ventasViewModel)
+                VentasScreen(
+                    viewModel = ventasViewModel,
+                    rolActual = rolActivo
+                )
             }
 
             composable(Screen.Alertas.route) {
@@ -156,16 +162,11 @@ fun AppNavigation(
             }
 
             composable(Screen.Perfil.route) {
-                val perfilViewModel: PerfilViewModel = viewModel()
                 PerfilScreen(
                     loginViewModel = loginViewModel,
                     perfilViewModel = perfilViewModel,
-                    onNavigateToPosts = {
-                        navigationViewModel.navigateTo(Screen.Posts.route)
-                    },
-                    onNavigateToIntegral = {
-                        navigationViewModel.navigateTo(Screen.RegistroIntegral.route)
-                    },
+                    onNavigateToPosts = { navigationViewModel.navigateTo(Screen.Posts.route) },
+                    onNavigateToIntegral = { navigationViewModel.navigateTo(Screen.RegistroIntegral.route) },
                     onCerrarSesion = {
                         navigationViewModel.navigateTo(
                             route = Screen.Login.route,

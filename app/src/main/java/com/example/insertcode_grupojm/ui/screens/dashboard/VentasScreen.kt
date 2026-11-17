@@ -19,16 +19,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.insertcode_grupojm.model.EstadoPedido
 import com.example.insertcode_grupojm.model.Pedido
 import com.example.insertcode_grupojm.model.PrioridadPedido
+import com.example.insertcode_grupojm.model.Rol
 import com.example.insertcode_grupojm.viewmodel.VentasViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun VentasScreen(
-    viewModel: VentasViewModel = viewModel()
+    viewModel: VentasViewModel = viewModel(),
+    rolActual: Rol = Rol.SUPERVISOR
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var mostrarDialogoNuevoPedido by remember { mutableStateOf(false) }
+
+    // Reglas de autorización según el perfil (Sección 3.1 del caso)
+    val puedeCrearPedidos = rolActual == Rol.VENDEDOR || rolActual == Rol.ADMIN
+    val puedeGestionarComercial = rolActual == Rol.VENDEDOR || rolActual == Rol.ADMIN
+    val puedeActualizarDistribucion = rolActual == Rol.REPARTIDOR || rolActual == Rol.ADMIN
 
     val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply {
         maximumFractionDigits = 0
@@ -36,8 +43,10 @@ fun VentasScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { mostrarDialogoNuevoPedido = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Registrar Nuevo Pedido")
+            if (puedeCrearPedidos) {
+                FloatingActionButton(onClick = { mostrarDialogoNuevoPedido = true }) {
+                    Icon(Icons.Default.Add, contentDescription = "Registrar Nuevo Pedido")
+                }
             }
         }
     ) { paddingValues ->
@@ -47,74 +56,80 @@ fun VentasScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // Banner informativo de permisos activos para el perfil actual
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            ) {
+                Text(
+                    text = "Perfil activo: ${rolActual.etiqueta} • ${rolActual.descripcionPermisos}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+
             OutlinedTextField(
                 value = uiState.filtroBusqueda,
                 onValueChange = viewModel::onBuscarQueryChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 12.dp),
                 singleLine = true,
-                placeholder = { Text("Buscar por cliente o código (ej. PED-101)...") },
+                placeholder = { Text("Buscar cliente, código o ruta...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (uiState.filtroBusqueda.isNotEmpty()) {
                         IconButton(onClick = { viewModel.onBuscarQueryChange("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Limpiar búsqueda")
+                            Icon(Icons.Default.Clear, contentDescription = "Limpiar")
                         }
                     }
                 }
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Historial de Pedidos (${uiState.pedidos.size})",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "Ventas cerradas: ${uiState.ventas.size}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = if (rolActual == Rol.REPARTIDOR) {
+                    "Rutas y Entregas Asignadas (${uiState.pedidos.size})"
+                } else {
+                    "Pedidos y Seguimiento (${uiState.pedidos.size})"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
 
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (uiState.pedidos.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "No se encontraron pedidos para '${uiState.filtroBusqueda}'",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(bottom = 72.dp)
-                ) {
-                    items(uiState.pedidos, key = { it.id }) { pedido ->
-                        PedidoItemCard(
-                            pedido = pedido,
-                            formatoMoneda = formatoMoneda,
-                            onCambiarEstado = { nuevoEstado ->
-                                viewModel.cambiarEstadoPedido(pedido.id, nuevoEstado)
-                            }
-                        )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(bottom = 72.dp)
+            ) {
+                items(uiState.pedidos, key = { it.id }) { pedido ->
+                    val siguienteEstadoPermitido = when {
+                        pedido.estado == EstadoPedido.PENDIENTE && puedeGestionarComercial ->
+                            EstadoPedido.EN_PROCESO
+                        pedido.estado == EstadoPedido.EN_PROCESO && puedeActualizarDistribucion ->
+                            EstadoPedido.DESPACHADO
+                        pedido.estado == EstadoPedido.DESPACHADO && puedeActualizarDistribucion ->
+                            EstadoPedido.ENTREGADO
+                        else -> null
                     }
+
+                    PedidoItemCard(
+                        pedido = pedido,
+                        formatoMoneda = formatoMoneda,
+                        siguienteEstado = siguienteEstadoPermitido,
+                        mostrarRutaLogistica = rolActual == Rol.REPARTIDOR || rolActual == Rol.SUPERVISOR,
+                        onCambiarEstado = { nuevoEstado ->
+                            viewModel.cambiarEstadoPedido(pedido.id, nuevoEstado)
+                        }
+                    )
                 }
             }
         }
     }
 
-    if (mostrarDialogoNuevoPedido) {
+    if (mostrarDialogoNuevoPedido && puedeCrearPedidos) {
         NuevoPedidoDialog(
             onDismiss = { mostrarDialogoNuevoPedido = false },
             onConfirmar = { cliente, producto, cantidad, precio, prioridad ->
@@ -261,15 +276,10 @@ private fun NuevoPedidoDialog(
 private fun PedidoItemCard(
     pedido: Pedido,
     formatoMoneda: NumberFormat,
+    siguienteEstado: EstadoPedido?,
+    mostrarRutaLogistica: Boolean,
     onCambiarEstado: (EstadoPedido) -> Unit
 ) {
-    val siguienteEstado = when (pedido.estado) {
-        EstadoPedido.PENDIENTE -> EstadoPedido.EN_PROCESO
-        EstadoPedido.EN_PROCESO -> EstadoPedido.DESPACHADO
-        EstadoPedido.DESPACHADO -> EstadoPedido.ENTREGADO
-        else -> null
-    }
-
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -299,6 +309,14 @@ private fun PedidoItemCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            if (mostrarRutaLogistica) {
+                Text(
+                    text = "Ruta asignada: Zona Metropolitana • Destino: ${pedido.nombreCliente}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
 
             Row(
                 modifier = Modifier

@@ -162,32 +162,50 @@ fun PerfilScreen(
             }
         }
 
-        // Selector de rol de prueba
+        // Selector de los 4 roles del caso (Sección 3.1)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Cambiar Rol de Prueba (Simulación MVP):",
+                text = "Cambiar Rol de Prueba (Simulación RBAC):",
                 style = MaterialTheme.typography.labelLarge
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Row(
+            @OptIn(ExperimentalLayoutApi::class)
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
-                FilterChip(
-                    selected = rolMostrado == Rol.ADMIN,
-                    onClick = { perfilViewModel.cambiarRolSimulado(Rol.ADMIN) },
-                    label = { Text("Admin") }
-                )
-                FilterChip(
-                    selected = rolMostrado == Rol.SUPERVISOR,
-                    onClick = { perfilViewModel.cambiarRolSimulado(Rol.SUPERVISOR) },
-                    label = { Text("Supervisor") }
-                )
-                FilterChip(
-                    selected = rolMostrado == Rol.OPERADOR,
-                    onClick = { perfilViewModel.cambiarRolSimulado(Rol.OPERADOR) },
-                    label = { Text("Operador") }
-                )
+                Rol.entries.forEach { rolItem ->
+                    FilterChip(
+                        selected = rolMostrado == rolItem,
+                        onClick = { perfilViewModel.cambiarRolSimulado(rolItem) },
+                        label = { Text(rolItem.etiqueta) }
+                    )
+                }
+            }
+        }
+
+        // Panel exclusivo para el rol Administrador
+        if (rolMostrado == Rol.ADMIN) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "Panel Administrador: Usuarios y Permisos",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("• admin@guardian.test → Gestión total y roles", style = MaterialTheme.typography.bodySmall)
+                    Text("• supervisor@guardian.test → KPIs y seguimiento", style = MaterialTheme.typography.bodySmall)
+                    Text("• vendedor@guardian.test → Registro de pedidos", style = MaterialTheme.typography.bodySmall)
+                    Text("• repartidor@guardian.test → Rutas y entregas", style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
 

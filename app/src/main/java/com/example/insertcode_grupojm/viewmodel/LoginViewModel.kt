@@ -70,38 +70,55 @@ class LoginViewModel(
 
     // Inicia sesión. Si resulta bien, avisa el rol mediante onExito para que
     // la pantalla pida la navegación (el ViewModel no conoce el NavController).
-    fun onLoginClick(onExito: (Rol) -> Unit) {
-        if (_estado.value.isLoading || !validarFormulario()) return
+    fun onLoginClick(onSuccess: (Rol) -> Unit) {
+        val emailLimpio = _estado.value.email.trim()
+        val passwordLimpia = _estado.value.password.trim()
 
-        _estado.update { it.copy(isLoading = true, errores = it.errores.copy(general = null)) }
+        // Validación básica de campos
+        val errorEmail = when {
+            emailLimpio.isBlank() -> "Ingresa tu correo electrónico"
+            !emailLimpio.contains("@") -> "Correo electrónico no válido"
+            else -> null
+        }
+        val errorPassword = when {
+            passwordLimpia.isBlank() -> "Ingresa tu contraseña"
+            passwordLimpia.length < 6 -> "Mínimo 6 caracteres"
+            else -> null
+        }
 
-        viewModelScope.launch {
-            val actual = _estado.value
-            try {
-                when (
-                    val resultado = authRepository.autenticar(
-                        email = actual.email,
-                        password = actual.password,
-                        simularSinConexion = actual.simularSinConexion
-                    )
-                ) {
-                    is ResultadoLogin.Exito -> {
-                        preferencias.guardarUltimoEmail(resultado.usuario.email)
-                        _estado.update {
-                            it.copy(isLoading = false, password = "", usuario = resultado.usuario)
-                        }
-                        onExito(resultado.usuario.rol)
-                    }
-                    ResultadoLogin.CredencialesInvalidas ->
-                        mostrarErrorGeneral("Correo o contraseña incorrectos")
-                    ResultadoLogin.SinConexion ->
-                        mostrarErrorGeneral("Sin conexión. Revisa tu red e inténtalo de nuevo")
-                }
-            } catch (e: CancellationException) {
-                throw e // Nunca se debe tragar la cancelación de una corrutina
-            } catch (e: Exception) {
-                // Un error inesperado no debe cerrar la app: se informa y se permite reintentar.
-                mostrarErrorGeneral("Ocurrió un error inesperado. Inténtalo nuevamente")
+        if (errorEmail != null || errorPassword != null) {
+            _estado.update {
+                it.copy(errores = LoginErrores(email = errorEmail, password = errorPassword))
+            }
+            return
+        }
+
+        // Validación de usuarios de prueba según los 4 perfiles del caso
+        val rolAsignado = when (emailLimpio.lowercase()) {
+            "admin@guardian.test" -> Rol.ADMIN
+            "supervisor@guardian.test" -> Rol.SUPERVISOR
+            "vendedor@guardian.test" -> Rol.VENDEDOR
+            "repartidor@guardian.test" -> Rol.REPARTIDOR
+            else -> null
+        }
+
+        if (rolAsignado != null && passwordLimpia == "123456") {
+            preferencias.guardarUltimoEmail(emailLimpio)
+            val usuarioAutenticado = Usuario(email = emailLimpio, rol = rolAsignado)
+            _estado.update {
+                it.copy(
+                    isLoading = false,
+                    errores = LoginErrores(),
+                    usuario = usuarioAutenticado
+                )
+            }
+            onSuccess(rolAsignado)
+        } else {
+            _estado.update {
+                it.copy(
+                    isLoading = false,
+                    errores = LoginErrores(general = "Credenciales incorrectas. Usa un correo @guardian.test y clave 123456")
+                )
             }
         }
     }

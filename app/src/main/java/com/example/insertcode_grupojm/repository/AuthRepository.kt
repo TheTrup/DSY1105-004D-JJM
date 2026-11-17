@@ -14,7 +14,8 @@ class AuthRepository {
     private val credenciales = listOf(
         Credencial("admin@guardian.test", "123456", Rol.ADMIN),
         Credencial("supervisor@guardian.test", "123456", Rol.SUPERVISOR),
-        Credencial("operador@guardian.test", "123456", Rol.OPERADOR)
+        Credencial("operador@guardian.test", "123456", Rol.VENDEDOR),
+        Credencial("repartidor@guardian.test", "123456", Rol.REPARTIDOR)
     )
 
     // Simula una consulta a un servidor: espera un momento y luego responde.
