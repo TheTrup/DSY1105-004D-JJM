@@ -205,7 +205,14 @@ fun RegisterScreen(
                             },
                             onError = { error ->
                                 coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(error)
+                                    val resultado = snackbarHostState.showSnackbar(
+                                        message = error,
+                                        actionLabel = "Usar Demo",
+                                        duration = SnackbarDuration.Long
+                                    )
+                                    if (resultado == SnackbarResult.ActionPerformed) {
+                                        onRegisterSuccess()
+                                    }
                                 }
                             }
                         )

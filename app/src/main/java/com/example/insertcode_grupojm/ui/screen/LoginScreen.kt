@@ -291,7 +291,16 @@ private fun FormularioLogin(
                         serverClientId = "301636417833-nn5kif3k8903e0upd8anp5d682j3k898.apps.googleusercontent.com",
                         onSuccess = { _, _ -> onOAuthSuccess() },
                         onError = { err ->
-                            coroutineScope.launch { snackbarHostState.showSnackbar(err) }
+                            coroutineScope.launch {
+                                val resultado = snackbarHostState.showSnackbar(
+                                    message = err,
+                                    actionLabel = "Usar Demo",
+                                    duration = SnackbarDuration.Long
+                                )
+                                if (resultado == SnackbarResult.ActionPerformed) {
+                                    onOAuthSuccess()
+                                }
+                            }
                         }
                     )
                 }

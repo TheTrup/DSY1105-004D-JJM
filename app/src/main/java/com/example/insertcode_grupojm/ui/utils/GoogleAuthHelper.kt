@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
@@ -54,10 +55,12 @@ class GoogleAuthHelper(private val context: Context) {
             } else {
                 onError("Tipo de credencial no soportado")
             }
+        } catch (e: NoCredentialException) {
+            onError("Sin credenciales de Google en este dispositivo")
         } catch (e: GetCredentialException) {
-            onError("Autenticación cancelada o fallida: ${e.localizedMessage}")
+            onError("Error de Google Auth: ${e.localizedMessage ?: "Cancelado"}")
         } catch (e: Exception) {
-            onError("Error desconocido: ${e.localizedMessage}")
+            onError("Error inesperado: ${e.localizedMessage}")
         }
     }
 }
