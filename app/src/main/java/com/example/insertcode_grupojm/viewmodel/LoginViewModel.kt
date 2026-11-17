@@ -155,4 +155,11 @@ class LoginViewModel(
             )
         }
     }
+    fun actualizarRolSesion(nuevoRol: Rol) {
+        _estado.update { current ->
+            current.copy(
+                usuario = current.usuario?.copy(rol = nuevoRol)
+            )
+        }
+    }
 }

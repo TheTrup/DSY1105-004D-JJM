@@ -177,7 +177,10 @@ fun PerfilScreen(
                 Rol.entries.forEach { rolItem ->
                     FilterChip(
                         selected = rolMostrado == rolItem,
-                        onClick = { perfilViewModel.cambiarRolSimulado(rolItem) },
+                        onClick = {
+                            perfilViewModel.cambiarRolSimulado(rolItem)
+                            loginViewModel.actualizarRolSesion(rolItem)
+                        },
                         label = { Text(rolItem.etiqueta) }
                     )
                 }
