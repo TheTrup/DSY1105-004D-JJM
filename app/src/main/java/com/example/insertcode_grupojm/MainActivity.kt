@@ -8,6 +8,10 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.insertcode_grupojm.data.local.AppDatabase
 import com.example.insertcode_grupojm.data.local.PreferencesManager
@@ -35,14 +39,18 @@ class MainActivity : ComponentActivity() {
         val usuarioRepository = UsuarioRepository(database.usuarioDao(), preferencesManager)
 
         setContent {
-            InsertCode_GrupoJMTheme {
+            var darkModeEva01 by rememberSaveable { mutableStateOf(false) }
+
+            InsertCode_GrupoJMTheme(darkTheme = darkModeEva01) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     AppNavigation(
                         navigationViewModel = navigationViewModel,
-                        loginViewModel = loginViewModel
+                        loginViewModel = loginViewModel,
+                        isDarkMode = darkModeEva01,
+                        onToggleDarkMode = { darkModeEva01 = !darkModeEva01 }
                     )
                 }
             }

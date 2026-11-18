@@ -24,10 +24,10 @@ Aplicación móvil nativa desarrollada en **Kotlin** y **Jetpack Compose** bajo 
 
 | Rol | Correo Electrónico | Contraseña | Permisos en el MVP |
 | :--- | :--- | :--- | :--- |
-| **Administrador** | `admin@guardian.test` | `123456` | Gestión de usuarios de prueba, roles y control total. |
-| **Supervisor** | `supervisor@guardian.test` | `123456` | Consulta de indicadores KPI, estados y seguimiento operativo. |
-| **Vendedor** | `vendedor@guardian.test` | `123456` | Registro de nuevos pedidos y gestión comercial inicial. |
-| **Distribuidor / Repartidor** | `repartidor@guardian.test` | `123456` | Consulta de rutas asignadas y actualización de entregas. |
+| **Administrador** | `admin@insertcode.cl` | `123456` | Gestión de usuarios de prueba, roles y control total. |
+| **Supervisor** | `supervisor@insertcode.cl` | `123456` | Consulta de indicadores KPI, estados y seguimiento operativo. |
+| **Vendedor** | `vendedor@insertcode.cl` | `123456` | Registro de nuevos pedidos y gestión comercial inicial. |
+| **Distribuidor / Repartidor** | `repartidor@insertcode.cl` | `123456` | Consulta de rutas asignadas y actualización de entregas. |
 
 *(También es posible ingresar mediante el botón **Continuar con Google** o utilizando la acción **Usar Demo** en caso de ejecutar en un emulador sin cuenta vinculada).*
 

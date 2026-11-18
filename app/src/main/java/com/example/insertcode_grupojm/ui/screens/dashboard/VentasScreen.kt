@@ -160,10 +160,9 @@ private fun NuevoPedidoDialog(
     var errorMensaje by remember { mutableStateOf<String?>(null) }
 
     val catalogoRapido = listOf(
-        Triple("Desarrollo a la Medida", "1800000", "A la Medida"),
-        Triple("Dashboards Power BI", "650000", "Power BI"),
-        Triple("App Móvil Corporativa", "1500000", "App Móvil"),
-        Triple("Outsourcing TI Mensual", "1200000", "Outsourcing TI")
+        Triple("Licencia Dashboard Web Sales", "450000", "Dashboard Web"),
+        Triple("Módulo IoT Rastreador GPS", "120000", "Rastreador GPS"),
+        Triple("Terminal POS Móvil Android", "180000", "Terminal POS")
     )
 
     AlertDialog(

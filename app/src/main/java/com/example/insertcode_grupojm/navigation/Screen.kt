@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.insertcode_grupojm.model.Rol
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null) {
-    object Inicio : Screen("inicio", "Inicio", Icons.Default.Home)
-    object Ventas : Screen("ventas", "Ventas", Icons.Default.ShoppingCart)
-    object Alertas : Screen("alertas", "Alertas", Icons.Default.Notifications)
+    object Inicio : Screen("inicio", "Dashboard", Icons.Default.Home)
+    object Ventas : Screen("ventas", "Pedidos", Icons.Default.ShoppingCart)
+    object Alertas : Screen("alertas", "Ruta GPS", Icons.Default.Notifications)
     object Perfil : Screen("perfil", "Perfil", Icons.Default.Person)
 
     // Alias para compatibilidad con código que invoque Screen.Registro

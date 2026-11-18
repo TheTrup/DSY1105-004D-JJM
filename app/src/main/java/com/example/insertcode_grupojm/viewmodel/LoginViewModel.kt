@@ -95,10 +95,10 @@ class LoginViewModel(
 
         // Validación de usuarios de prueba según los 4 perfiles del caso
         val rolAsignado = when (emailLimpio.lowercase()) {
-            "admin@guardian.test" -> Rol.ADMIN
-            "supervisor@guardian.test" -> Rol.SUPERVISOR
-            "vendedor@guardian.test" -> Rol.VENDEDOR
-            "repartidor@guardian.test" -> Rol.REPARTIDOR
+            "admin@insertcode.cl" -> Rol.ADMIN
+            "supervisor@insertcode.cl" -> Rol.SUPERVISOR
+            "vendedor@insertcode.cl" -> Rol.VENDEDOR
+            "repartidor@insertcode.cl" -> Rol.REPARTIDOR
             else -> null
         }
 
@@ -143,7 +143,7 @@ class LoginViewModel(
 
     // Registra la sesión cuando el usuario ingresa mediante Google o Apple
     fun iniciarSesionOAuth(email: String, rolPorDefecto: Rol = Rol.SUPERVISOR) {
-        val correoLimpio = email.trim().ifBlank { "usuario.oauth@guardian.test" }
+        val correoLimpio = email.trim().ifBlank { "usuario.oauth@insertcode.cl" }
         preferencias.guardarUltimoEmail(correoLimpio)
         _estado.update {
             it.copy(

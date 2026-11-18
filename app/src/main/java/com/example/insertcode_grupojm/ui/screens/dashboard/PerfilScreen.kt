@@ -162,27 +162,98 @@ fun PerfilScreen(
             }
         }
 
-        // Selector de los 4 roles del caso (Sección 3.1)
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Cambiar Rol de Prueba (Simulación RBAC):",
-                style = MaterialTheme.typography.labelLarge
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            @OptIn(ExperimentalLayoutApi::class)
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+        // Tarjeta de Permisos Activos del Perfil (Visible para todos, estilo Perfil.png)
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Rol.entries.forEach { rolItem ->
-                    FilterChip(
-                        selected = rolMostrado == rolItem,
-                        onClick = {
-                            perfilViewModel.cambiarRolSimulado(rolItem)
-                            loginViewModel.actualizarRolSesion(rolItem)
-                        },
-                        label = { Text(rolItem.etiqueta) }
+                Text(
+                    text = "Permisos del Perfil (${rolMostrado.name})",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                val permisosActivos = when (rolMostrado) {
+                    Rol.ADMIN -> listOf(
+                        "Gestión de usuarios de prueba y roles",
+                        "Control total de pedidos y rutas GPS",
+                        "Supervisión de indicadores KPI"
                     )
+                    Rol.SUPERVISOR -> listOf(
+                        "Consulta de indicadores comerciales y logísticos",
+                        "Seguimiento de estados de pedidos y entregas",
+                        "Monitoreo de alertas operativas"
+                    )
+                    Rol.VENDEDOR -> listOf(
+                        "Consulta de catálogo de soluciones y clientes",
+                        "Registro y cotización de nuevos pedidos",
+                        "Consulta de estados de despacho"
+                    )
+                    Rol.REPARTIDOR -> listOf(
+                        "Consulta de rutas y entregas asignadas",
+                        "Actualización de estados de distribución",
+                        "Registro de evidencia de entrega"
+                    )
+                }
+                permisosActivos.forEach { permiso ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = permiso,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "✓ Activo",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = androidx.compose.ui.graphics.Color(0xFF10B981),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+
+        // Selector de Roles: VISIBLE ÚNICAMENTE PARA ADMINISTRADOR
+        if (rolMostrado == Rol.ADMIN) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Administración de Roles y Usuarios de Prueba",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Rol.entries.forEach { rolItem ->
+                            FilterChip(
+                                selected = rolMostrado == rolItem,
+                                onClick = {
+                                    perfilViewModel.cambiarRolSimulado(rolItem)
+                                    loginViewModel.actualizarRolSesion(rolItem)
+                                },
+                                label = { Text(rolItem.etiqueta) }
+                            )
+                        }
+                    }
+                    Text("• admin@insertcode.cl (Administrador)", style = MaterialTheme.typography.bodySmall)
+                    Text("• supervisor@insertcode.cl (Supervisor)", style = MaterialTheme.typography.bodySmall)
+                    Text("• vendedor@insertcode.cl (Vendedor)", style = MaterialTheme.typography.bodySmall)
+                    Text("• repartidor@insertcode.cl (Repartidor)", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -208,39 +279,6 @@ fun PerfilScreen(
                     Text("• supervisor@guardian.test → KPIs y seguimiento", style = MaterialTheme.typography.bodySmall)
                     Text("• vendedor@guardian.test → Registro de pedidos", style = MaterialTheme.typography.bodySmall)
                     Text("• repartidor@guardian.test → Rutas y entregas", style = MaterialTheme.typography.bodySmall)
-                }
-            }
-        }
-
-        // Accesos directos a módulos técnicos (Retrofit & Room/DataStore)
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Módulos Técnicos (Evaluación)",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                OutlinedButton(
-                    onClick = onNavigateToPosts,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.CloudDownload, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Consumo API REST (Retrofit)")
-                }
-                OutlinedButton(
-                    onClick = onNavigateToIntegral,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Storage, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Persistencia Local (Room + DataStore)")
                 }
             }
         }

@@ -1,43 +1,58 @@
 package com.example.insertcode_grupojm.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.insertcode_grupojm.repository.VentasRepository
 import com.example.insertcode_grupojm.ui.components.BottomNavBar
+import com.example.insertcode_grupojm.ui.screen.ListadoOfflineScreen
 import com.example.insertcode_grupojm.ui.screen.LoginScreen
+import com.example.insertcode_grupojm.ui.screen.PostScreen
 import com.example.insertcode_grupojm.ui.screen.RegisterScreen
+import com.example.insertcode_grupojm.ui.screen.RegistroIntegralScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.AlertasScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.HomeScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.PerfilScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.VentasScreen
-import com.example.insertcode_grupojm.ui.screen.ListadoOfflineScreen
-import com.example.insertcode_grupojm.ui.screen.PostScreen
-import com.example.insertcode_grupojm.ui.screen.RegistroIntegralScreen
 import com.example.insertcode_grupojm.ui.utils.rememberTamanoVentana
+import com.example.insertcode_grupojm.viewmodel.AlertasViewModel
+import com.example.insertcode_grupojm.viewmodel.DashboardViewModel
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
 import com.example.insertcode_grupojm.viewmodel.PerfilViewModel
 import com.example.insertcode_grupojm.viewmodel.RegisterViewModel
 import com.example.insertcode_grupojm.viewmodel.UsuarioIntegralViewModel
-import androidx.compose.runtime.remember
-import com.example.insertcode_grupojm.repository.VentasRepository
-import com.example.insertcode_grupojm.viewmodel.AlertasViewModel
-import com.example.insertcode_grupojm.viewmodel.DashboardViewModel
 import com.example.insertcode_grupojm.viewmodel.VentasViewModel
 import kotlinx.coroutines.flow.collectLatest
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
     navigationViewModel: NavigationViewModel,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    isDarkMode: Boolean = false,
+    onToggleDarkMode: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -61,7 +76,18 @@ fun AppNavigation(
         }
     }
 
-    // La barra inferior de navegación solo se muestra dentro del Dashboard
+    // Navegación entre pestañas manteniendo el estado y selección de BottomNavBar
+    val navegarAPestana: (String) -> Unit = { rutaDestino ->
+        navController.navigate(rutaDestino) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    // La barra superior e inferior solo se muestran dentro del Dashboard
     val showBottomBar = currentRoute in bottomNavItems.map { it.route }
 
     val ventasRepository = remember { VentasRepository() }
@@ -72,11 +98,45 @@ fun AppNavigation(
         VentasViewModel(repository = ventasRepository)
     }
     val alertasViewModel: AlertasViewModel = viewModel()
-
     val perfilViewModel: PerfilViewModel = viewModel()
-    val rolActivo = perfilViewModel.uiState.collectAsState().value.usuario.rol
+
+    val loginState = loginViewModel.estado.collectAsState().value
+    val perfilState = perfilViewModel.uiState.collectAsState().value
+    val rolActivo = loginState.usuario?.rol ?: perfilState.usuario.rol
 
     Scaffold(
+        topBar = {
+            if (showBottomBar) {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = "InsertCode",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Ventas & Distribución Móvil",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    actions = {
+                        FilledTonalIconButton(onClick = onToggleDarkMode) {
+                            Icon(
+                                imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                contentDescription = if (isDarkMode) "Cambiar a modo claro" else "Activar modo oscuro EVA-01",
+                                tint = if (isDarkMode) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+            }
+        },
         bottomBar = {
             if (showBottomBar) {
                 BottomNavBar(navController = navController)
@@ -90,9 +150,8 @@ fun AppNavigation(
         ) {
             // --- Flujo de Autenticación ---
             composable(Screen.Login.route) {
-                val loginUiState = loginViewModel.estado.collectAsState().value
                 LoginScreen(
-                    estado = loginUiState,
+                    estado = loginState,
                     tamano = rememberTamanoVentana(),
                     onEmailChange = loginViewModel::onEmailChange,
                     onPasswordChange = loginViewModel::onPasswordChange,
@@ -147,7 +206,13 @@ fun AppNavigation(
 
             // --- Flujo del Dashboard Principal ---
             composable(Screen.Inicio.route) {
-                HomeScreen(viewModel = dashboardViewModel)
+                HomeScreen(
+                    viewModel = dashboardViewModel,
+                    ventasViewModel = ventasViewModel,
+                    rolActual = rolActivo,
+                    onIrAPedidos = { navegarAPestana(Screen.Ventas.route) },
+                    onIrARutaGps = { navegarAPestana(Screen.Alertas.route) }
+                )
             }
 
             composable(Screen.Ventas.route) {
