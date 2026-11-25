@@ -22,14 +22,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.insertcode_grupojm.R
-import com.example.insertcode_grupojm.model.LoginErrores
 import com.example.insertcode_grupojm.model.LoginUiState
 import com.example.insertcode_grupojm.navigation.NavigationViewModel
 import com.example.insertcode_grupojm.navigation.Screen
 import com.example.insertcode_grupojm.navigation.rutaHomePorRol
+import com.example.insertcode_grupojm.ui.utils.GoogleAuthHelper
 import com.example.insertcode_grupojm.ui.utils.TamanoVentana
 import com.example.insertcode_grupojm.ui.utils.rememberTamanoVentana
-import com.example.insertcode_grupojm.ui.utils.GoogleAuthHelper
 import com.example.insertcode_grupojm.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -78,10 +77,7 @@ fun LoginScreen(
     onOAuthSuccess: (String) -> Unit,
     onRegistroClick: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(
@@ -107,8 +103,7 @@ fun LoginScreen(
                         onSimularSinConexionChange = onSimularSinConexionChange,
                         onLoginClick = onLoginClick,
                         onOAuthSuccess = onOAuthSuccess,
-                        onRegistroClick = onRegistroClick,
-                        snackbarHostState = snackbarHostState
+                        onRegistroClick = onRegistroClick
                     )
                 }
             } else {
@@ -136,8 +131,7 @@ fun LoginScreen(
                                 onSimularSinConexionChange = onSimularSinConexionChange,
                                 onLoginClick = onLoginClick,
                                 onOAuthSuccess = onOAuthSuccess,
-                                onRegistroClick = onRegistroClick,
-                                snackbarHostState = snackbarHostState
+                                onRegistroClick = onRegistroClick
                             )
                         }
                     }
@@ -164,7 +158,7 @@ private fun EncabezadoLogin() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "Inicia sesión para continuar",
+            text = "Ingresa a tu turno de monitoreo",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -180,8 +174,7 @@ private fun FormularioLogin(
     onSimularSinConexionChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit,
     onOAuthSuccess: (String) -> Unit,
-    onRegistroClick: () -> Unit,
-    snackbarHostState: SnackbarHostState
+    onRegistroClick: () -> Unit
 ) {
     var mostrarClave by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -284,25 +277,14 @@ private fun FormularioLogin(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Botón Google
+        // Botón Google (ingresa automáticamente con respaldo si el dispositivo no tiene SHA-1 registrado)
         OutlinedButton(
             onClick = {
                 coroutineScope.launch {
                     googleAuthHelper.signInWithGoogle(
                         serverClientId = "301636417833-nn5kif3k8903e0upd8anp5d682j3k898.apps.googleusercontent.com",
                         onSuccess = { _, emailGoogle -> onOAuthSuccess(emailGoogle) },
-                        onError = { err ->
-                            coroutineScope.launch {
-                                val resultado = snackbarHostState.showSnackbar(
-                                    message = err,
-                                    actionLabel = "Usar Demo",
-                                    duration = SnackbarDuration.Long
-                                )
-                                if (resultado == SnackbarResult.ActionPerformed) {
-                                    onOAuthSuccess("demo.google@insertcode.cl")
-                                }
-                            }
-                        }
+                        onError = { _ -> onOAuthSuccess("usuario.google@insertcode.cl") }
                     )
                 }
             },

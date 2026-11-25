@@ -33,6 +33,7 @@ import com.example.insertcode_grupojm.ui.screen.PostScreen
 import com.example.insertcode_grupojm.ui.screen.RegisterScreen
 import com.example.insertcode_grupojm.ui.screen.RegistroIntegralScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.AlertasScreen
+import com.example.insertcode_grupojm.ui.screens.dashboard.CatalogoScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.HomeScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.PerfilScreen
 import com.example.insertcode_grupojm.ui.screens.dashboard.VentasScreen
@@ -185,7 +186,8 @@ fun AppNavigation(
                     onNavigateBack = { navigationViewModel.navigateBack() },
                     onRegisterSuccess = {
                         val correoRegistrado = registerViewModel.uiState.value.email
-                        loginViewModel.iniciarSesionOAuth(correoRegistrado)
+                        val claveRegistrada = registerViewModel.uiState.value.password
+                        loginViewModel.registrarUsuarioLocal(correoRegistrado, claveRegistrada)
                         navigationViewModel.navigateTo(
                             route = Screen.Inicio.route,
                             popUpTo = Screen.Login.route,
@@ -222,6 +224,12 @@ fun AppNavigation(
                 )
             }
 
+            composable(Screen.Catalogo.route) {
+                CatalogoScreen(
+                    onCotizarClick = { navegarAPestana(Screen.Ventas.route) }
+                )
+            }
+
             composable(Screen.Alertas.route) {
                 AlertasScreen(viewModel = alertasViewModel)
             }
@@ -233,6 +241,7 @@ fun AppNavigation(
                     onNavigateToPosts = { navigationViewModel.navigateTo(Screen.Posts.route) },
                     onNavigateToIntegral = { navigationViewModel.navigateTo(Screen.RegistroIntegral.route) },
                     onCerrarSesion = {
+                        loginViewModel.cerrarSesion()
                         navigationViewModel.navigateTo(
                             route = Screen.Login.route,
                             popUpTo = Screen.Inicio.route,

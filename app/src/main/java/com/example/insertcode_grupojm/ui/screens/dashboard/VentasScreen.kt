@@ -21,6 +21,7 @@ import com.example.insertcode_grupojm.model.Pedido
 import com.example.insertcode_grupojm.model.PrioridadPedido
 import com.example.insertcode_grupojm.model.Rol
 import com.example.insertcode_grupojm.viewmodel.VentasViewModel
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -31,8 +32,10 @@ fun VentasScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var mostrarDialogoNuevoPedido by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    // Reglas de autorización según el perfil (Sección 3.1 del caso)
+    // Reglas de autorización según el perfil
     val puedeCrearPedidos = rolActual == Rol.VENDEDOR || rolActual == Rol.ADMIN
     val puedeGestionarComercial = rolActual == Rol.VENDEDOR || rolActual == Rol.ADMIN
     val puedeActualizarDistribucion = rolActual == Rol.REPARTIDOR || rolActual == Rol.ADMIN
@@ -42,11 +45,23 @@ fun VentasScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            if (puedeCrearPedidos) {
-                FloatingActionButton(onClick = { mostrarDialogoNuevoPedido = true }) {
-                    Icon(Icons.Default.Add, contentDescription = "Registrar Nuevo Pedido")
+            // Botón siempre visible y activo: valida permisos al hacer clic
+            FloatingActionButton(
+                onClick = {
+                    if (puedeCrearPedidos) {
+                        mostrarDialogoNuevoPedido = true
+                    } else {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Acceso denegado: el rol ${rolActual.etiqueta} no tiene permisos para registrar pedidos."
+                            )
+                        }
+                    }
                 }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Registrar Nuevo Pedido")
             }
         }
     ) { paddingValues ->
@@ -153,9 +168,9 @@ private fun NuevoPedidoDialog(
     ) -> Unit
 ) {
     var cliente by remember { mutableStateOf("") }
-    var producto by remember { mutableStateOf("Desarrollo a la Medida") }
+    var producto by remember { mutableStateOf("Licencia Dashboard Web Sales") }
     var cantidadTexto by remember { mutableStateOf("1") }
-    var precioTexto by remember { mutableStateOf("1800000") }
+    var precioTexto by remember { mutableStateOf("450000") }
     var prioridad by remember { mutableStateOf(PrioridadPedido.ALTA) }
     var errorMensaje by remember { mutableStateOf<String?>(null) }
 
@@ -177,7 +192,7 @@ private fun NuevoPedidoDialog(
                         errorMensaje = null
                     },
                     label = { Text("Nombre del Cliente") },
-                    placeholder = { Text("Ej. Almacén Don Pedro") },
+                    placeholder = { Text("Ej. Duoc UC Sede Alameda") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

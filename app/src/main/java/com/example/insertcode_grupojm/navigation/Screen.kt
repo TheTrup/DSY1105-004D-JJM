@@ -5,12 +5,14 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.insertcode_grupojm.model.Rol
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null) {
     object Inicio : Screen("inicio", "Dashboard", Icons.Default.Home)
     object Ventas : Screen("ventas", "Pedidos", Icons.Default.ShoppingCart)
+    object Catalogo : Screen("catalogo", "Catálogo", Icons.Default.Storefront)
     object Alertas : Screen("alertas", "Ruta GPS", Icons.Default.Notifications)
     object Perfil : Screen("perfil", "Perfil", Icons.Default.Person)
 
@@ -30,6 +32,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
 val bottomNavItems = listOf(
     Screen.Inicio,
     Screen.Ventas,
+    Screen.Catalogo,
     Screen.Alertas,
     Screen.Perfil
 )
